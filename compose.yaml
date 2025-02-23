@@ -1,0 +1,85 @@
+version: '3.7'
+services:
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus-config.yaml:/etc/prometheus/prometheus.yml
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  elasticsearch: # configures the Elasticsearch container.
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2
+    container_name: elasticsearch # Sets the name of the container to "elasticsearch."
+    environment: # Configures environment variables for the Elasticsearch container, such as node name, discovery type, memory lock, and Java options for heap size.
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elk
+
+  logstash: #c onfigures the Logstash container.
+    image: docker.elastic.co/logstash/logstash:7.15.2
+    container_name: logstash # Sets the name of the container to "logstash."
+    volumes:
+      - ./config/logstash.yaml:/usr/share/logstash/config/logstash.yml
+      - ./config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      #- /logs/sample.log:/usr/share/logstash/data/sample.log # add your log file path to here
+      - ./logs:/usr/share/logstash/logs
+    ports:
+      - 5000:5000
+    environment:
+      - 'LS_JAVA_OPTS=-Xmx256m -Xms256m' # Sets the Java options for Logstash heap size.
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  kibana: # Configures the Kibana container.
+    image: docker.elastic.co/kibana/kibana:7.15.2
+    container_name: kibana # Sets the name of the container to "kibana."
+    ports:
+      - 5601:5601
+    environment: # Sets the Elasticsearch URL and Node.js options for the Kibana container.
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - 'NODE_OPTIONS=--max-old-space-size=2048'
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+
+  zipkin:
+    image: ghcr.io/openzipkin/zipkin-slim:latest
+    container_name: zipkin
+    # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
+    environment:
+      - STORAGE_TYPE=mem
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to increase heap size
+      # - JAVA_OPTS=-Xms128m -Xmx128m -XX:+ExitOnOutOfMemoryError
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - 9411:9411
+    # Uncomment to enable debug logging
+    # command: --logging.level.zipkin2=DEBUG
+networks:
+  elk:
+    driver: bridge
+
+volumes:
+  es-data:
+    driver: local

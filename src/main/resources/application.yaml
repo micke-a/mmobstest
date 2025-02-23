@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: mmobstest
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  # traceID and spanId are predefined MDC keys - we want the logs to include them
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %X{traceId:-},%X{spanId:-} %logger{36} - %msg%n"
+  level:
+    root: INFO

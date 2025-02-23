@@ -1,0 +1,13 @@
+
+### GET request to example server
+GET http://localhost:8080/actuator/health
+
+### GET request to example server
+GET http://localhost:8080/actuator/prometheus
+
+###
+GET http://localhost:8080/hello/world
+
+###
+GET http://localhost:8080/message/send
+Event-Id: $randomUUID
