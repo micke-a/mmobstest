@@ -1,6 +1,8 @@
 
 Playground to see what is new with micrometer changes.
 
+Also in this I played around with how to get observatility tools like grafana, prometheus,zipkin, etc. to run locally using docker-compose.
+
 
 Some questions of mine online on this topic:
 - https://stackoverflow.com/questions/79402301/spring-boot-3-with-micrometer-1-4-how-to-skip-tracing-but-continue-to-report-m
@@ -23,6 +25,7 @@ Spring boot stuff
 
 micrometer stuff
 - https://docs.micrometer.io/tracing/reference/api.html
+- https://docs.spring.io/spring-boot/reference/actuator/tracing.html
 
 ## Docker compose  links
 
@@ -31,6 +34,16 @@ https://medium.com/@lahiruchandika/integrate-elk-stack-into-spring-boot-applicat
 
 Prometheus
 https://stackoverflow.com/questions/77365532/local-prometheus-cant-reach-spring-boot-app-running-in-ide
+
+
+## Baggage notes
+
+If using W3C propagation, then baggage is automatically propagated over the network.
+
+If using B3 propagation, then the fields to be propagated must be under `management.tracing.baggage.remote-fields`
+
+For propagation to MDC, then `management.tracing.baggage.correlation.fields` must be set.
+
 
 ## What happens when using Observations?
 
