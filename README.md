@@ -27,6 +27,9 @@ micrometer stuff
 - https://docs.micrometer.io/tracing/reference/api.html
 - https://docs.spring.io/spring-boot/reference/actuator/tracing.html
 
+tracing bits spring boot 3.4
+- https://medium.com/@python-javascript-php-html-css/how-to-use-spring-boot-3-4-to-propagate-traces-from-custom-headers-32a41210b772
+
 ## Docker compose  links
 
 ELK stack
@@ -75,6 +78,7 @@ public class HelloService {
     }
 }
 ```
+
 
 We get these metrics in Prometheus
 ```
